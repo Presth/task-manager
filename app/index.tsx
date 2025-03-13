@@ -1,6 +1,13 @@
 import { Link, router } from "expo-router";
 import React, { useEffect } from "react";
-import { Pressable, Text, View, Alert, Platform } from "react-native";
+import {
+  Pressable,
+  Text,
+  View,
+  Alert,
+  Platform,
+  ImageBackground,
+} from "react-native";
 import * as Notifications from "expo-notifications";
 import * as SplashScreen from "expo-splash-screen";
 import useLocalStorage from "@/hooks/useLocalStorage";
@@ -24,6 +31,7 @@ function Index() {
 
     const setupDb = async () => {
       const creation = await createTaskstable();
+      // console.log(creation);
       if (creation === true) return setFirstTimeUse("false");
       alert("Error seting up db");
     };
@@ -74,14 +82,16 @@ function Index() {
   }, []);
 
   return (
-    <View className="bg-white h-screen w-screen justify-center items-center">
-      <Pressable
-        onPress={() => router.push("/home")}
-        className="bg-primary/25 p-4 px-6 rounded-lg"
-      >
-        <Text>Explore</Text>
-      </Pressable>
-    </View>
+    <ImageBackground source={require("@/assets/images/thinking.jpg")}>
+      <View className="bg-white/5 h-screen w-screen justify-center items-center">
+        <Pressable
+          onPress={() => router.push("/home")}
+          className="bg-primary p-4 px-6 rounded-lg"
+        >
+          <Text className="text-white font-semibold"> Explore</Text>
+        </Pressable>
+      </View>
+    </ImageBackground>
   );
 }
 

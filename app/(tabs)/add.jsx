@@ -46,12 +46,9 @@ function AddTask() {
       const notificationId = await scheduleNotification();
 
       // console.log(notificationId);
-      const response = await createTask(
-        taskName,
-        scheduleType,
-        time,
-        notificationId
-      );
+      // console.log(taskName, scheduleType, time, notificationId);
+      // return;
+      await createTask(taskName, scheduleType, time, notificationId);
 
       // console.log(response);
       alert("Task created successfully");

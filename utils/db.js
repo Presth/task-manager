@@ -7,6 +7,7 @@ export const createTaskstable = async () => {
       "CREATE TABLE IF NOT EXISTS tasks(id INTEGER PRIMARY KEY NOT NULL, name varchar(255), schedule varchar(255), time varchar(255), notificationId varchar(255), created_at DATETIME DEFAULT CURRENT_TIMESTAMP)"
     );
 
+    // console.log({ createTable });
     return true;
   } catch (err) {
     return err;
@@ -34,7 +35,10 @@ export const createTask = (name, schedule, time, notificationId) =>
 export const getAlltasks = async () => {
   try {
     const db = await SQLite.openDatabaseAsync("task_manager.db");
-    const tasks = await db.getAllAsync("SELECT * FROM tasks");
+    const prep = await db.prepareAsync("SELECT * FROM tasks");
+    const exec = await prep.executeAsync();
+    const tasks = await exec.getAllAsync();
+
     return tasks;
   } catch (error) {
     console.log(error);
