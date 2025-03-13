@@ -34,7 +34,7 @@ export default function Home() {
     <ScrollView className="bg-white py-8 px-4 h-screen w-screen">
       <View className="flex-row mb-2">
         <View className="flex-row flex-1 gap-2">
-          <Pressable className="p-2">
+          <Pressable className="p-2" onPress={fetchTasks}>
             <Icon name="refresh" size={18} />
           </Pressable>
           <Pressable className="p-2">

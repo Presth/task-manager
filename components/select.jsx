@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import {
+  FlatList,
+  Text,
+  TouchableOpacity,
+  View,
+  ScrollView,
+  Pressable,
+} from "react-native";
 
 function Select({ valueList, value, setValue }) {
   const [selectIsOpen, setSelectIsOpen] = useState(false);
@@ -14,26 +21,40 @@ function Select({ valueList, value, setValue }) {
             {value !== "" ? value : "Select"}
           </Text>
         </TouchableOpacity>
+
         <View
-          className="bg-white mt-1"
           style={{
-            elevation: 4,
+            display: selectIsOpen ? "flex" : "none",
+            height: 200,
+            width: "100%",
             zIndex: 99,
-            display: selectIsOpen ? "block" : "none",
+            elevation: 4,
+            backgroundColor: "#fff",
+            marginTop: 4,
+            overflowY: "hidden",
+            width: "100%",
           }}
         >
-          {valueList.map((typ) => (
-            <TouchableOpacity
-              key={Math.random()}
-              className="h-16"
-              onPress={() => {
-                setValue(typ);
-                setSelectIsOpen(false);
-              }}
-            >
-              <Text className="my-auto px-4">{typ}</Text>
-            </TouchableOpacity>
-          ))}
+          <FlatList
+            data={valueList}
+            renderItem={({ item }) => (
+              <Pressable
+                key={Math.random()}
+                className="h-16 mx-4"
+                onPress={() => {
+                  setValue(item);
+                  setSelectIsOpen(false);
+                }}
+              >
+                <Text className="my-auto">{item}</Text>
+              </Pressable>
+            )}
+            style={{ paddingHorizontal: 15, height: "auto" }}
+          />
+
+          {/* {valueList.map((typ) => (
+           
+          ))} */}
         </View>
       </View>
     </View>

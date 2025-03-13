@@ -10,6 +10,8 @@ import {
 } from "react-native";
 import * as Notifications from "expo-notifications";
 import Select from "@/components/select";
+import COLORS from "@/constants/colors";
+import { FontAwesome } from "@expo/vector-icons";
 
 function AddTask() {
   const scheduleTypes = ["Daily", "Weekly", "Custom"];
@@ -25,24 +27,47 @@ function AddTask() {
 
   const [taskName, setTaskName] = useState("");
   const [scheduleType, setScheduleType] = useState("");
-  const [time, setTime] = useState("");
   const [day, setDay] = useState("");
   const [hour, setHour] = useState(0);
   const [minute, setMinute] = useState(0);
+  const [repeat, setRepeat] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const addToTasks = async () => {
-    if (taskName === "" || schedule === "" || time === "") {
-      console.log("Task info not supplied");
+    let time = `${day}, ${hour}:${minute}`;
+    if (taskName === "" || scheduleType === "") {
+      alert("Task info not supplied");
       return;
     }
+    // console.log("here");
+
+    setSaving(true);
     try {
-      const response = await createTask(taskName, schedule, time);
-      console.log(response);
-      scheduleNotification();
+      const notificationId = await scheduleNotification();
+
+      // console.log(notificationId);
+      const response = await createTask(
+        taskName,
+        scheduleType,
+        time,
+        notificationId
+      );
+
+      // console.log(response);
+      alert("Task created successfully");
     } catch (error) {
-      console.log(error);
+      alert("Error creating task" + JSON.stringify(error));
+    } finally {
+      setSaving(false);
     }
   };
+
+  useEffect(() => {
+    setDay("");
+    setHour(0);
+    setMinute(0);
+    setRepeat(false);
+  }, [scheduleType]);
 
   useEffect(() => {
     const requestPermissions = async () => {
@@ -55,16 +80,27 @@ function AddTask() {
   }, []);
 
   const scheduleNotification = async () => {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: "🚀 Hello!",
-        body: "This is your scheduled notification!",
-        sound: true,
-        priority: Notifications.AndroidNotificationPriority.MAX,
-      },
-      trigger: { seconds: 5 }, // Triggers after 5 seconds
-    });
-    console.log("scheduled");
+    try {
+      console.log(hour, minute, weekDays.indexOf(day) + 1);
+
+      const notificationId = await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "⏰ Reminder!",
+          body: `It's time for ${taskName}`,
+          sound: true,
+          priority: Notifications.AndroidNotificationPriority.MAX,
+        },
+        trigger: {
+          weekday: weekDays.indexOf(day) + 1,
+          hour,
+          minute,
+          repeats: scheduleType === "Custom" ? repeat : true,
+        },
+      });
+      return notificationId;
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -94,7 +130,7 @@ function AddTask() {
         </View>
 
         <View>
-          {scheduleType !== "" ? (
+          {scheduleType !== "Daily" ? (
             <View>
               <Text className="font-semibold my-2 text-lg"> Day </Text>
 
@@ -110,32 +146,57 @@ function AddTask() {
           )}
         </View>
         <View>
-          {scheduleType !== "" && scheduleType !== "Weekly" ? (
-            <View className="flex-row gap-4">
-              <View className="flex-1">
-                <Text className="font-semibold my-2 text-lg"> Hour </Text>
+          <View className="flex-row gap-4">
+            <View className="flex-1">
+              <Text className="font-semibold my-2 text-lg"> Hour </Text>
 
-                <Select valueList={Array(5)} value={day} setValue={setDay} />
-              </View>
-              <View className="flex-1">
-                <Text className="font-semibold my-2 text-lg"> Minute </Text>
-
-                <Select valueList={weekDays} value={day} setValue={setDay} />
-              </View>
+              <Select
+                valueList={[...Array(24)].map((_, index) => index)}
+                value={hour}
+                setValue={setHour}
+              />
             </View>
-          ) : (
-            <View></View>
-          )}
+            <View className="flex-1">
+              <Text className="font-semibold my-2 text-lg"> Minute </Text>
+              <Select
+                valueList={[...Array(60)].map((_, index) => index)}
+                value={minute}
+                setValue={setMinute}
+              />
+            </View>
+          </View>
         </View>
-        <View>
+
+        {scheduleType === "Custom" && (
           <Pressable
-            className="bg-primary rounded-lg p-3 my-4"
+            className="my-4 flex-row gap-2"
+            onPress={() => setRepeat(!repeat)}
+          >
+            <View
+              className="border border-primary rounded-md my-auto"
+              style={{
+                width: 16,
+                height: 16,
+                backgroundColor: repeat ? COLORS.primary : "#fff",
+              }}
+            >
+              <Text className="m-auto">
+                <FontAwesome name="check" size={12} color={"#fff"} />
+              </Text>
+            </View>
+            <Text className="my-auto font-semibold">Repeat</Text>
+          </Pressable>
+        )}
+
+        <View>
+          <TouchableOpacity
+            className="bg-primary rounded-lg p-3 my-6 h-16"
             onPress={() => addToTasks()}
           >
-            <Text className="text-white text-center font-semibold">
-              Add Task
+            <Text className="text-white text-center font-semibold my-auto">
+              {saving ? "Adding..." : "Add Task"}
             </Text>
-          </Pressable>
+          </TouchableOpacity>
         </View>
       </View>
     </ScrollView>
