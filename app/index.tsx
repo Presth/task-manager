@@ -2,6 +2,7 @@ import { Link, router } from "expo-router";
 import React, { useEffect } from "react";
 import { Pressable, Text, View, Alert, Platform } from "react-native";
 import * as Notifications from "expo-notifications";
+import * as SplashScreen from "expo-splash-screen";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -11,7 +12,15 @@ Notifications.setNotificationHandler({
   }),
 });
 
+SplashScreen.preventAutoHideAsync();
+
 function Index() {
+  useEffect(() => {
+    setTimeout(async () => {
+      await SplashScreen.hideAsync();
+    }, 5000); // Set duration (3000ms = 3 seconds)
+  }, []);
+
   useEffect(() => {
     const requestPermissions = async () => {
       const { status } = await Notifications.requestPermissionsAsync();
