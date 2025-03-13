@@ -99,7 +99,7 @@ function AddTask() {
       });
       return notificationId;
     } catch (error) {
-      console.log(error);
+      alert(JSON.stringify(error));
     }
   };
 
