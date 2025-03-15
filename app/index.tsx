@@ -10,8 +10,6 @@ import {
 } from "react-native";
 import * as Notifications from "expo-notifications";
 import * as SplashScreen from "expo-splash-screen";
-import useLocalStorage from "@/hooks/useLocalStorage";
-import { createTaskstable } from "@/utils/db";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -24,20 +22,6 @@ Notifications.setNotificationHandler({
 SplashScreen.preventAutoHideAsync();
 
 function Index() {
-  const [firstTimeUse, setFirstTimeUse] = useLocalStorage("firstTimeUse");
-
-  useEffect(() => {
-    if (firstTimeUse === "false") return;
-
-    const setupDb = async () => {
-      const creation = await createTaskstable();
-      // console.log(creation);
-      if (creation === true) return setFirstTimeUse("false");
-      alert("Error seting up db");
-    };
-    setupDb();
-  }, []);
-
   useEffect(() => {
     setTimeout(async () => {
       await SplashScreen.hideAsync();

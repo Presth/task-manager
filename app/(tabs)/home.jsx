@@ -1,9 +1,12 @@
 import TaskCard from "@/components/tasks/TaskCard";
 import TopNav from "@/components/topNav";
-import { getAlltasks } from "@/utils/db";
+import useLocalStorage from "@/hooks/useLocalStorage";
+// import { getAlltasks } from "@/utils/db";
 import { FontAwesome } from "@expo/vector-icons";
 import { Link, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
+import * as Notification from "expo-notifications";
+
 import {
   FlatList,
   Image,
@@ -15,21 +18,22 @@ import {
   View,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
+import { useTasksContext } from "@/contexts/tasks";
 
 export default function Home() {
   const router = useRouter();
-  const [tasks, setTasks] = useState([]);
+  const { tasks, deleteTask } = useTasksContext();
+
   const [filteredtasks, setFilteredTasks] = useState([]);
   const [searchKey, setSearchKey] = useState("");
   const [showSearchBox, setShowSearchBox] = useState(false);
 
-  useState(() => {
+  useEffect(() => {
     setFilteredTasks(tasks);
-    setSearchKey("");
   }, [tasks]);
 
   useEffect(() => {
-    if (searchKey === "") return;
+    if (searchKey === "") return setFilteredTasks(tasks);
 
     const matchQ = tasks.filter((task) =>
       Object.values(task)
@@ -40,29 +44,31 @@ export default function Home() {
     setFilteredTasks(matchQ);
   }, [searchKey]);
 
-  const fetchTasks = async () => {
-    try {
-      const response = await getAlltasks();
-      setTasks(response);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    fetchTasks();
-  }, []);
+  // const cancelNotification = async () => {
+  //   await Notification.cancelAllScheduledNotificationsAsync();
+  //   alert("All notifications cancelled");
+  // };
 
   return (
     <ScrollView className="bg-white py-8 px-4 h-screen w-screen">
       <View className="flex-row mb-2">
         <View className="flex-row flex-1 gap-2">
-          <Pressable className="p-2" onPress={fetchTasks}>
+          <Pressable
+            className="p-2"
+            onPress={() => {
+              setFilteredTasks(tasks);
+            }}
+          >
             <Icon name="refresh" size={18} />
           </Pressable>
-          <Pressable className="p-2">
-            <Icon name="ellipsis-h" size={18} color="black" />
-          </Pressable>
+          {/* <Pressable
+            className="p-2 bg-primaryLight rounded-lg"
+            onPress={cancelNotification}
+          >
+            <Text className="text-xs text-white my-auto font-semibold">
+              Cancel Notifications
+            </Text>
+          </Pressable> */}
         </View>
         <View className="flex-1 flex-row justify-end gap-2">
           <Pressable
@@ -138,7 +144,9 @@ export default function Home() {
         ) : (
           <FlatList
             data={filteredtasks}
-            renderItem={({ item }) => <TaskCard item={item} />}
+            renderItem={({ item }) => (
+              <TaskCard item={item} deleteTask={deleteTask} />
+            )}
           />
         )}
       </View>

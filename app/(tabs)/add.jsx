@@ -1,4 +1,3 @@
-import { createTask } from "@/utils/db";
 import React, { useState, useEffect } from "react";
 import {
   Pressable,
@@ -12,9 +11,12 @@ import * as Notifications from "expo-notifications";
 import Select from "@/components/select";
 import COLORS from "@/constants/colors";
 import { FontAwesome } from "@expo/vector-icons";
+import { useTasksContext } from "@/contexts/tasks";
 
 function AddTask() {
-  const scheduleTypes = ["Daily", "Weekly", "Custom"];
+  const scheduleTypes = ["Daily", "Weekly"];
+  const { createTask } = useTasksContext();
+
   const weekDays = [
     "Sunday",
     "Monday",
@@ -39,19 +41,15 @@ function AddTask() {
       alert("Task info not supplied");
       return;
     }
-    // console.log("here");
 
     setSaving(true);
     try {
       const notificationId = await scheduleNotification();
-
-      // console.log(notificationId);
-      // console.log(taskName, scheduleType, time, notificationId);
-      // return;
       await createTask(taskName, scheduleType, time, notificationId);
 
-      // console.log(response);
       alert("Task created successfully");
+      setTaskName("");
+      setScheduleType("");
     } catch (error) {
       alert("Error creating task" + JSON.stringify(error));
     } finally {
@@ -78,7 +76,23 @@ function AddTask() {
 
   const scheduleNotification = async () => {
     try {
-      console.log(hour, minute, weekDays.indexOf(day) + 1);
+      const trigger = {};
+      const weekday = weekDays.indexOf(day) + 1;
+
+      let triggerType =
+        Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL;
+      if (scheduleType === "Weekly") {
+        triggerType = Notifications.SchedulableTriggerInputTypes.WEEKLY;
+        trigger.weekday = weekday;
+      } else if (scheduleType === "Daily") {
+        triggerType = Notifications.SchedulableTriggerInputTypes.DAILY;
+      }
+
+      trigger.type = triggerType;
+      trigger.hour = hour;
+      trigger.minute = minute;
+      trigger.repeat = true;
+      // trigger.repeat(scheduleType === "Custom" ? repeat : true);
 
       const notificationId = await Notifications.scheduleNotificationAsync({
         content: {
@@ -87,12 +101,7 @@ function AddTask() {
           sound: true,
           priority: Notifications.AndroidNotificationPriority.MAX,
         },
-        trigger: {
-          weekday: weekDays.indexOf(day) + 1,
-          hour,
-          minute,
-          repeats: scheduleType === "Custom" ? repeat : true,
-        },
+        trigger,
       });
       return notificationId;
     } catch (error) {

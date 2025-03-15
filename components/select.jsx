@@ -29,28 +29,29 @@ function Select({ valueList, value, setValue }) {
             width: "100%",
             zIndex: 99,
             elevation: 4,
-            backgroundColor: "#fff",
+            backgroundColor: "#fafafa",
             marginTop: 4,
             overflowY: "hidden",
             width: "100%",
           }}
         >
-          <FlatList
-            data={valueList}
-            renderItem={({ item }) => (
-              <Pressable
-                key={Math.random()}
-                className="h-16 mx-4"
-                onPress={() => {
-                  setValue(item);
-                  setSelectIsOpen(false);
-                }}
-              >
-                <Text className="my-auto">{item}</Text>
-              </Pressable>
-            )}
-            style={{ paddingHorizontal: 15, height: "auto" }}
-          />
+          <ScrollView>
+            {valueList.map((item) => {
+              return (
+                <TouchableOpacity
+                  key={Math.random()}
+                  className="h-12 px-4 bg-white mb-1"
+                  onPress={() => {
+                    console.log(item);
+                    setValue(item);
+                    setSelectIsOpen(false);
+                  }}
+                >
+                  <Text className="my-auto">{item}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
 
           {/* {valueList.map((typ) => (
            

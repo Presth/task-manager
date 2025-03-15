@@ -2,10 +2,8 @@ import React from "react";
 import { Pressable, Text, View } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import COLORS from "@/constants/colors";
-import { deleteTask } from "@/utils/db";
 
-function TaskCard({ item }) {
-  console.log(item);
+function TaskCard({ item, deleteTask }) {
   return (
     <View
       className="p-4 my-2 rounded-xl flex-row"
